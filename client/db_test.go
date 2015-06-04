@@ -21,6 +21,7 @@ import (
 	"fmt"
 	"log"
 	"path/filepath"
+	"reflect"
 	"runtime"
 	"strings"
 	"testing"
@@ -287,4 +288,32 @@ func TestDebugName(t *testing.T) {
 		}
 		return nil
 	})
+}
+
+func TestCommonMethods(t *testing.T) {
+	methods := []string{
+		"CPut",
+		"Del",
+		"DelRange",
+		"Get",
+		"GetProto",
+		"Inc",
+		"Put",
+		"Scan",
+	}
+	vals := []interface{}{
+		&client.DB{},
+		&client.Tx{},
+		&client.Batch{},
+		client.DB{}.B,
+	}
+	for _, v := range vals {
+		typ := reflect.TypeOf(v)
+		for _, name := range methods {
+			_, ok := typ.MethodByName(name)
+			if !ok {
+				t.Errorf("(%s).%s does not exist", typ, name)
+			}
+		}
+	}
 }
